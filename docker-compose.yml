@@ -1,0 +1,16 @@
+version: '3.0'
+
+services:
+  bin:
+    build:
+      context: .
+      dockerfile: Dockerfile.testenv
+    command: tail -F anything
+    tty: true
+    volumes:
+      - .:/usr/src/app
+      - registry:/root/.cargo/registry
+
+volumes:
+  registry:
+    driver: local
