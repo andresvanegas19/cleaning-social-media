@@ -16,5 +16,19 @@ Repository that will be use for cleaning all publication and information in the 
 ...
 
 
+### Requirements
+
+
+### For installing run the following steps
+
+``` shell
+    cp .env.examples .env
+    # edit your env
+    docker compose build
+    docker compose run
+
+    docker exec -it name-of-the-cointer bash
+    source .env
+```
 
 
