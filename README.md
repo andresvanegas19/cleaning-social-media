@@ -12,9 +12,7 @@ Repository that will be use for cleaning all publication and information in the 
 3. List all publications in cli
 4. Cache the result
 5. Choose dates when the user want to delete
-
 ...
-
 
 ### Requirements
 
@@ -29,6 +27,7 @@ Repository that will be use for cleaning all publication and information in the 
 
     docker exec -it name-of-the-cointer bash
     source .env
+    cargo run test test/test.txt
 ```
 
 

@@ -1,25 +1,26 @@
 use log::{info, debug};
 use env_logger::Env;
 
-use std::fs::File;
-use std::io::{ self, BufReader, BufRead};
+use std::{
+    fs::File,
+    io::{BufRead, BufReader},
+    path::PathBuf,
+};
 use clap::Parser;
 
-mod response;
+mod libs;
 
-/*
-    this function is used to simulate a loading bar progress
-*/
-fn display_load_indicatior(/* callback to execute */) -> Result<(), Box<dyn std::error::Error>> {
-    let pb = indicatif::ProgressBar::new(100);
-    for _ in 0..100 {
-        // pb.println(format!("[+] finished #{}", i));
-        pb.inc(1);
+fn read_file(path: &PathBuf) -> Result<String, Box<dyn std::error::Error>> {
+    let file_reading = File::open(path)?;
+    let mut reader = BufReader::with_capacity(10, file_reading);
+
+    assert!(reader.buffer().is_empty());
+
+    if reader.fill_buf()?.len() > 0 {
+        assert!(!reader.buffer().is_empty());
     }
 
-    pb.finish_with_message("done");
-
-    Ok(())
+    Ok(reader.expect("Can't read Cargo.toml"))
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,38 +31,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     env_logger::init_from_env(env);
 
-    let stdout = io::stdout();
-    let mut handle = io::BufWriter::new(stdout.lock());
+    let args = libs::Cli::parse();
 
-    // read the file
-    let args = response::Cli::parse();
-    let file_reading = File::open(args.path)?;
-    let mut reader = BufReader::new(file_reading);
-    assert!(reader.buffer().is_empty());
-
-    // Check the buffer is empty
-    // let content = match reader {
-    //     Ok(content) => { content },
-    //     Err(error) => { return Err(error.into()); }
-    // };
-
-    if reader.fill_buf()?.len() > 0 {
-        assert!(!reader.buffer().is_empty());
-    }
-
-    debug!("Reading the file without problems in the path: {}", args.path);
-
-
-    debug!("Content of the file");
+    info!("already read the content of the file");
     // manage the information of the file
-    for line in reader.lines() {
-        let line = line?;
+    let content = read_file(&args.path)?;
+    // let content = std::fs::read_to_string(&args.path).with_context(|| format!("could not read file `{}`", args.path.display()));
+    libs::find_matches(&content, &args.pattern, &mut std::io::stdout());
 
-        info!("{}", line);
-    }
-
-    display_load_indicatior()?;
+    libs::display_load_indicatior()?;
 
     debug!("Run without problems!");
     Ok(())
 }
+
+
